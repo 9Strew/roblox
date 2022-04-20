@@ -8,5 +8,3 @@ local games = {
         url = "https://raw.githubusercontent.com/9Strew/roblox/main/randomscripts/test"
     }
 }
-
-return games
