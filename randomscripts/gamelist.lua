@@ -1,4 +1,4 @@
-local games = {
+getgenv().games = {
     ["9095754532"] = {
         Name = "Place Name",
         url = "https://raw.githubusercontent.com/9Strew/roblox/main/randomscripts/test"
