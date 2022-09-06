@@ -25,10 +25,15 @@ getgenv().Settings = {
     moneyfarm = false,
     afkfarm = false,
     NoCameraShake = false,
+    Downedplayeresp = false,
+    AutoRespawn = false,
     Speed = 1450,
     Jump = 3,
-    reviveTime = 3
+    reviveTime = 3,
+    DownedColor = Color3.fromRGB(255,0,0),
+    PlayerColor = Color3.fromRGB(255,170,0),
 }
+
 
 
 local WalkSpeed = EvadeSector:AddSlider("Speed", 1450, 1450, 12000, 100, function(Value)
@@ -60,6 +65,10 @@ Gamesec:AddToggle('Fast Revive', false, function(State)
     end
 end)
 
+EvadeSector:AddToggle('Auto Respawn', false, function(State)
+    Settings.AutoRespawn = State
+end)
+
 EvadeSector:AddButton('Respawn',function()
     game:GetService("ReplicatedStorage").Events.Respawn:FireServer()
 end)
@@ -81,6 +90,10 @@ Visuals:AddToggle('Bot Esp', false, function(State)
     Esp.NPCs = State
 end)
 
+Visuals:AddToggle('Downed Player Esp', false, function(State)
+    Settings.Downedplayeresp = State
+end)
+
 Visuals:AddToggle('Boxes', false, function(State)
     Esp.Boxes = State
 end)
@@ -96,6 +109,15 @@ end)
 Visuals:AddToggle('Distance', false, function(State)
     Esp.Distance = State
 end)
+
+Visuals:AddColorpicker("Player Color", Color3.fromRGB(255,170,0), function(Color)
+    Settings.PlayerColor = Color
+end)
+
+Visuals:AddColorpicker("Downed Player Color", Color3.fromRGB(255,255,255), function(Color)
+    Settings.DownedColor = Color
+end)
+
 
 Credits:AddLabel("Developed By xCLY And batusd")
 Credits:AddLabel("UI Lib: Jans Lib")
@@ -143,7 +165,7 @@ end
 
 --Kiriot
 Esp:AddObjectListener(WorkspacePlayers, {
-    Color =  Color3.new(1, 1, 1),
+    Color =  Color3.fromRGB(255,0,0),
     Type = "Model",
     PrimaryPart = function(obj)
         local hrp = obj:FindFirstChild('HRP')
@@ -157,10 +179,21 @@ Esp:AddObjectListener(WorkspacePlayers, {
         return not game.Players:GetPlayerFromCharacter(obj)
     end,
     CustomName = function(obj)
-        return obj.Name
+        return '[AI] '..obj.Name
     end,
     IsEnabled = "NPCs",
 })
+
+--Tysm CJStylesOrg
+Esp.Overrides.GetColor = function(char)
+   local GetPlrFromChar = Esp:GetPlrFromChar(char)
+   if GetPlrFromChar then
+       if Settings.Downedplayeresp and GetPlrFromChar.Character:GetAttribute("Downed") then
+           return Settings.DownedColor
+       end
+   end
+   return Settings.PlayerColor
+end
 
 local old
 old = hookmetamethod(game,"__namecall",newcclosure(function(self,...)
@@ -174,9 +207,14 @@ end))
 
 task.spawn(function()
     while task.wait() do
+        if Settings.AutoRespawn then
+             if localplayer.Character and localplayer.Character:GetAttribute("Downed") then
+                game:GetService("ReplicatedStorage").Events.Respawn:FireServer()
+             end
+        end
+
         if Settings.NoCameraShake then
-            localplayer.PlayerScripts.CameraShake.Value *= CFrame.new(0,0,0) 
-            localplayer.PlayerScripts.CameraShake.Value *= CFrame.Angles(0,0,0) 
+            localplayer.PlayerScripts.CameraShake.Value = CFrame.new(0,0,0) * CFrame.new(0,0,0)
         end
         if Settings.moneyfarm then
             if localplayer.Character and localplayer.Character:GetAttribute("Downed") then
