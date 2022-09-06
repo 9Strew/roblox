@@ -24,7 +24,6 @@ local World = Gamee:CreateSector("World", "left")
 getgenv().Settings = {
     moneyfarm = false,
     afkfarm = false,
-    Quickrevive = false,
     NoCameraShake = false,
     Speed = 1450,
     Jump = 3,
@@ -53,7 +52,7 @@ World:AddToggle('No Camera Shake', false, function(State)
     Settings.NoCameraShake = State
 end)
 
-Gamesec:AddToggle('Quick Revive', false, function(State)
+Gamesec:AddToggle('Fast Revive', false, function(State)
     if State then
         workspace.Game.Settings:SetAttribute("ReviveTime", 2.2)
     else
