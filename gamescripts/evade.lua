@@ -8,7 +8,7 @@ Esp.Enabled = false
 Esp.Tracers = false
 Esp.Boxes = false
 
-local Window = Library:CreateWindow("Evade 💀", Vector2.new(500, 300), Enum.KeyCode.RightShift)
+local Window = Library:CreateWindow("🧟🎃 Evade", Vector2.new(500, 300), Enum.KeyCode.RightShift)
 local Evade = Window:CreateTab("General")
 local Gamee = Window:CreateTab("Game")
 local Configs = Window:CreateTab("Settings")
@@ -27,13 +27,13 @@ getgenv().Settings = {
     NoCameraShake = false,
     Downedplayeresp = false,
     AutoRespawn = false,
+    TicketFarm = false,
     Speed = 1450,
     Jump = 3,
     reviveTime = 3,
     DownedColor = Color3.fromRGB(255,0,0),
     PlayerColor = Color3.fromRGB(255,170,0),
 }
-
 
 
 local WalkSpeed = EvadeSector:AddSlider("Speed", 1450, 1450, 12000, 100, function(Value)
@@ -73,6 +73,17 @@ EvadeSector:AddButton('Respawn',function()
     game:GetService("ReplicatedStorage").Events.Respawn:FireServer()
 end)
 
+Farms:AddToggle('Ticket Farm', false, function(State)
+    Settings.TicketFarm = State
+    if State then
+        for i,v in pairs(game:GetService("Workspace").Game.Effects.Tickets:GetChildren()) do
+            if game.Players.LocalPlayer:GetAttribute('InMenu') ~= true then
+                localplayer.Character.HumanoidRootPart.CFrame = CFrame.new(v:WaitForChild('HumanoidRootPart').Position)
+            end
+        end
+    end
+end)
+
 Farms:AddToggle('Money Farm', false, function(State)
     Settings.moneyfarm = State
 end)
@@ -81,7 +92,6 @@ Farms:AddToggle('Afk Farm', false, function(State)
     Settings.afkfarm = State
 end)
 
-
 Visuals:AddToggle('Enable Esp', false, function(State)
     Esp.Enabled = State
 end)
@@ -89,6 +99,7 @@ end)
 Visuals:AddToggle('Bot Esp', false, function(State)
     Esp.NPCs = State
 end)
+
 
 Visuals:AddToggle('Downed Player Esp', false, function(State)
     Settings.Downedplayeresp = State
@@ -117,6 +128,7 @@ end)
 Visuals:AddColorpicker("Downed Player Color", Color3.fromRGB(255,255,255), function(Color)
     Settings.DownedColor = Color
 end)
+
 
 
 Credits:AddLabel("Developed By xCLY And batusd")
@@ -204,6 +216,18 @@ old = hookmetamethod(game,"__namecall",newcclosure(function(self,...)
     end
     return old(self,...)
 end))
+
+
+game:GetService("Workspace").Game.Effects.Tickets.ChildAdded:Connect(function()
+    if Settings.TicketFarm then
+        for i,v in pairs(game:GetService("Workspace").Game.Effects.Tickets:GetChildren()) do
+            if game.Players.LocalPlayer:GetAttribute('InMenu') ~= true then
+                localplayer.Character.HumanoidRootPart.CFrame = CFrame.new(v:WaitForChild('HumanoidRootPart').Position)
+                task.wait()
+            end
+        end
+    end
+end)
 
 task.spawn(function()
     while task.wait() do
