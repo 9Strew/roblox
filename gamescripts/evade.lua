@@ -75,13 +75,6 @@ end)
 
 Farms:AddToggle('Ticket Farm', false, function(State)
     Settings.TicketFarm = State
-    if State then
-        for i,v in pairs(game:GetService("Workspace").Game.Effects.Tickets:GetChildren()) do
-            if game.Players.LocalPlayer:GetAttribute('InMenu') ~= true then
-                localplayer.Character.HumanoidRootPart.CFrame = CFrame.new(v:WaitForChild('HumanoidRootPart').Position)
-            end
-        end
-    end
 end)
 
 Farms:AddToggle('Money Farm', false, function(State)
@@ -218,16 +211,18 @@ old = hookmetamethod(game,"__namecall",newcclosure(function(self,...)
 end))
 
 
-game:GetService("Workspace").Game.Effects.Tickets.ChildAdded:Connect(function()
-    if Settings.TicketFarm then
-        for i,v in pairs(game:GetService("Workspace").Game.Effects.Tickets:GetChildren()) do
-            if game.Players.LocalPlayer:GetAttribute('InMenu') ~= true then
-                localplayer.Character.HumanoidRootPart.CFrame = CFrame.new(v:WaitForChild('HumanoidRootPart').Position)
-                task.wait()
+task.spawn(function()
+    while task.wait() do
+        if Settings.TicketFarm then
+            for i,v in pairs(game:GetService("Workspace").Game.Effects.Tickets:GetChildren()) do
+                if game.Players.LocalPlayer:GetAttribute('InMenu') ~= true then
+                    localplayer.Character.HumanoidRootPart.CFrame = CFrame.new(v:WaitForChild('HumanoidRootPart').Position)
+                end
             end
         end
     end
 end)
+
 
 task.spawn(function()
     while task.wait() do
