@@ -214,10 +214,12 @@ end))
 task.spawn(function()
     while task.wait() do
         if Settings.TicketFarm then
-            for i,v in pairs(game:GetService("Workspace").Game.Effects.Tickets:GetChildren()) do
-                if game.Players.LocalPlayer:GetAttribute('InMenu') ~= true then
+            if game.Players.LocalPlayer:GetAttribute('InMenu') ~= true then
+                for i,v in pairs(game:GetService("Workspace").Game.Effects.Tickets:GetChildren()) do
                     localplayer.Character.HumanoidRootPart.CFrame = CFrame.new(v:WaitForChild('HumanoidRootPart').Position)
                 end
+            else
+                game:GetService("ReplicatedStorage").Events.Respawn:FireServer()
             end
         end
     end
