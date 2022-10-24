@@ -220,13 +220,13 @@ task.spawn(function()
                     localplayer.Character.HumanoidRootPart.CFrame = CFrame.new(v:WaitForChild('HumanoidRootPart').Position)
                 end
             else
-                task.wait(2)
                 game:GetService("ReplicatedStorage").Events.Respawn:FireServer()
+		task.wait(3)
             end
             
             if localplayer.Character and localplayer.Character:GetAttribute("Downed") then
                 game:GetService("ReplicatedStorage").Events.Respawn:FireServer()
-                task.wait(2)
+                task.wait(3)
             end
             
         end
