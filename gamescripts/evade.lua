@@ -1,6 +1,7 @@
-local WorkspacePlayers = game:GetService("Workspace").Game.Players
-local Players = game:GetService('Players')
-local localplayer = Players.LocalPlayer
+local WorkspacePlayers = game:GetService("Workspace").Game.Players;
+local Players = game:GetService('Players');
+local localplayer = Players.LocalPlayer;
+-- semicolon but cool :sunglasses:
 
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/9Strew/roblox/main/proc/jans"))()
 local Esp = loadstring(game:HttpGet("https://raw.githubusercontent.com/9Strew/roblox/main/proc/kiriotesp"))()
@@ -10,13 +11,15 @@ Esp.Boxes = false
 
 local Window = Library:CreateWindow("🧟🎃 Evade", Vector2.new(500, 300), Enum.KeyCode.RightShift)
 local Evade = Window:CreateTab("General")
+local AutoFarms = Window:CreateTab("Farms")
 local Gamee = Window:CreateTab("Game")
 local Configs = Window:CreateTab("Settings")
 
 local EvadeSector = Evade:CreateSector("Character", "left")
 local Visuals = Evade:CreateSector("Visuals", "right")
 local Credits = Evade:CreateSector("Credits", "left")
-local Farms = Evade:CreateSector("Farms", "right")
+local Farms = AutoFarms:CreateSector("Farms", "left")
+local FarmStats = AutoFarms:CreateSector("Stats", "right")
 
 local Gamesec = Gamee:CreateSector("Utils", "right")
 local World = Gamee:CreateSector("World", "left")
@@ -33,6 +36,19 @@ getgenv().Settings = {
     reviveTime = 3,
     DownedColor = Color3.fromRGB(255,0,0),
     PlayerColor = Color3.fromRGB(255,170,0),
+
+    stats = {
+        TicketFarm = {
+            earned = nil,
+            duration = 0
+        },
+
+        TokenFarm = {
+            earned = nil,
+            duration = 0
+        }
+
+    }
 }
 
 
@@ -45,6 +61,7 @@ local JumpPower = EvadeSector:AddSlider("JumpPower", 3, 3, 20, 1, function(Value
     Settings.Jump = Value
 end)
 
+--// because silder does not detect dotted values 
 
 World:AddButton('Full Bright', function()
    	Game.Lighting.Brightness = 4
@@ -125,12 +142,15 @@ Visuals:AddColorpicker("Downed Player Color", Color3.fromRGB(255,255,255), funct
     Settings.DownedColor = Color
 end)
 
-
-
 Credits:AddLabel("Developed By xCLY And batusd")
 Credits:AddLabel("UI Lib: Jans Lib")
 Credits:AddLabel("ESP Lib: Kiriot")
 Configs:CreateConfigSystem()
+
+local TypeLabelC5 = FarmStats:AddLabel('Auto Farm Stats')
+local DurationLabelC5 = FarmStats:AddLabel('Duration: 0')
+local EarnedLabelC5 = FarmStats:AddLabel('Earned: 0')
+local TicketsLabelC5 = FarmStats:AddLabel('Total Tickets:'..localplayer:GetAttribute('Tickets'))
 
 local FindAI = function()
     for _,v in pairs(WorkspacePlayers:GetChildren()) do
@@ -193,7 +213,6 @@ Esp:AddObjectListener(WorkspacePlayers, {
 })
 
 Esp:AddObjectListener(game:GetService("Workspace").Game.Effects.Tickets, {
-    --Name = "Ticket4",
     CustomName = "Ticket",
     Color = Color3.fromRGB(41,180,255),
     IsEnabled = "TicketEsp"
@@ -220,12 +239,66 @@ old = hookmetamethod(game,"__namecall",newcclosure(function(self,...)
     return old(self,...)
 end))
 
+local formatNumber = (function(value) -- //Credits: https://devforum.roblox.com/t/formatting-a-currency-label-to-include-commas/413670/3
+	value = tostring(value)
+	return value:reverse():gsub("%d%d%d", "%1,"):reverse():gsub("^,", "")
+end)
+
+function Format(Int) -- // Credits: https://devforum.roblox.com/t/converting-secs-to-hsec/146352
+	return string.format("%02i", Int)
+end
+
+function convertToHMS(Seconds)
+	local Minutes = (Seconds - Seconds%60)/60
+	Seconds = Seconds - Minutes*60
+	local Hours = (Minutes - Minutes%60)/60
+	Minutes = Minutes - Hours*60
+	return Format(Hours).."H "..Format(Minutes).."M "..Format(Seconds)..'S'
+end
+
+task.spawn(function()
+    while task.wait(1) do
+        if Settings.TicketFarm then
+            Settings.stats.TicketFarm.duration += 1
+        end
+        if Settings.moneyfarm then
+            Settings.stats.TokenFarm.duration += 1
+        end 
+    end
+end)
+
+local gettickets = localplayer:GetAttribute('Tickets')
+local GetTokens = localplayer:GetAttribute('Tokens')
+
+localplayer:GetAttributeChangedSignal('Tickets'):Connect(function()
+    local tickets = tostring(gettickets - localplayer:GetAttribute('Tickets'))
+    local cleanvalue = string.split(tickets, "-")
+    Settings.stats.TicketFarm.earned = cleanvalue[2]
+end)
+
+localplayer:GetAttributeChangedSignal('Tokens'):Connect(function()
+    local tokens = tostring(GetTokens - localplayer:GetAttribute('Tokens'))
+    local cleanvalue = string.split(tokens, "-")
+    print(cleanvalue[2])
+    Settings.stats.TokenFarm.earned = cleanvalue[2]
+end)
+
+localplayer:GetAttributeChangedSignal('Tokens'):Connect(function()
+    local tokens = tostring(GetTokens - localplayer:GetAttribute('Tokens'))
+    local cleanvalue = string.split(tokens, "-")
+    print(cleanvalue[2])
+    Settings.stats.TokenFarm.earned = cleanvalue[2]
+end)
 
 task.spawn(function()
     while task.wait() do
         if Settings.TicketFarm then
-         
-            if game.Players.LocalPlayer:GetAttribute('InMenu') ~= true then
+            TypeLabelC5:Set('Ticket Farm')
+            DurationLabelC5:Set('Duration:'..convertToHMS(Settings.stats.TicketFarm.duration))
+            EarnedLabelC5:Set('Earned:'.. formatNumber(Settings.stats.TicketFarm.earned))
+            TicketsLabelC5:Set('Total Tickets: '..localplayer:GetAttribute('Tickets'))
+
+            if game.Players.LocalPlayer:GetAttribute('InMenu') ~= true and localplayer:GetAttribute('Dead') ~= true then
                 for i,v in pairs(game:GetService("Workspace").Game.Effects.Tickets:GetChildren()) do
                     localplayer.Character.HumanoidRootPart.CFrame = CFrame.new(v:WaitForChild('HumanoidRootPart').Position)
                 end
@@ -233,12 +306,10 @@ task.spawn(function()
                 task.wait(2)
                 game:GetService("ReplicatedStorage").Events.Respawn:FireServer()
             end
-            
             if localplayer.Character and localplayer.Character:GetAttribute("Downed") then
                 game:GetService("ReplicatedStorage").Events.Respawn:FireServer()
                 task.wait(2)
             end
-            
         end
     end
 end)
@@ -256,6 +327,14 @@ task.spawn(function()
             localplayer.PlayerScripts.CameraShake.Value = CFrame.new(0,0,0) * CFrame.new(0,0,0)
         end
         if Settings.moneyfarm then
+            TypeLabelC5:Set('Money Farm (Updating the end of the round)')
+            DurationLabelC5:Set('Duration:'..convertToHMS(Settings.stats.TokenFarm.duration))
+            EarnedLabelC5:Set('Earned:'.. formatNumber(Settings.stats.TokenFarm.earned))
+            TicketsLabelC5:Set('Total Tokens: '..formatNumber(localplayer:GetAttribute('Tokens')))
+            
+            if localplayer:GetAttribute("InMenu") and localplayer:GetAttribute("Dead") ~= true then
+                game:GetService("ReplicatedStorage").Events.Respawn:FireServer()
+            end
             if localplayer.Character and localplayer.Character:GetAttribute("Downed") then
                 game:GetService("ReplicatedStorage").Events.Respawn:FireServer()
                 task.wait(3)
@@ -263,6 +342,7 @@ task.spawn(function()
                 revive()
                 task.wait(1)
             end
+
         end
         if Settings.moneyfarm == false and Settings.afkfarm and localplayer.Character:FindFirstChild('HumanoidRootPart') ~= nil then
             localplayer.Character:FindFirstChild('HumanoidRootPart').CFrame = CFrame.new(6007, 7005, 8005)
@@ -270,6 +350,7 @@ task.spawn(function()
     end
 end)
 
+--Infinite yield's Anti afk
 local GC = getconnections or get_signal_cons
 	if GC then
 		for i,v in pairs(GC(localplayer.Idled)) do
@@ -286,4 +367,3 @@ local GC = getconnections or get_signal_cons
 			VirtualUser:ClickButton2(Vector2.new())
 		end)
 	end
---Infinite yield's Anti afk
