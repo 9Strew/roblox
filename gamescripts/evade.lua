@@ -93,6 +93,9 @@ Visuals:AddToggle('Bot Esp', false, function(State)
     Esp.NPCs = State
 end)
 
+Visuals:AddToggle('Ticket Esp', false, function(State)
+    Esp.TicketEsp = State
+end)
 
 Visuals:AddToggle('Downed Player Esp', false, function(State)
     Settings.Downedplayeresp = State
@@ -189,6 +192,13 @@ Esp:AddObjectListener(WorkspacePlayers, {
     IsEnabled = "NPCs",
 })
 
+Esp:AddObjectListener(game:GetService("Workspace").Game.Effects.Tickets, {
+    --Name = "Ticket4",
+    CustomName = "Ticket",
+    Color = Color3.fromRGB(41,180,255),
+    IsEnabled = "TicketEsp"
+})
+
 --Tysm CJStylesOrg
 Esp.Overrides.GetColor = function(char)
    local GetPlrFromChar = Esp:GetPlrFromChar(char)
@@ -220,13 +230,13 @@ task.spawn(function()
                     localplayer.Character.HumanoidRootPart.CFrame = CFrame.new(v:WaitForChild('HumanoidRootPart').Position)
                 end
             else
+                task.wait(2)
                 game:GetService("ReplicatedStorage").Events.Respawn:FireServer()
-		task.wait(3)
             end
             
             if localplayer.Character and localplayer.Character:GetAttribute("Downed") then
                 game:GetService("ReplicatedStorage").Events.Respawn:FireServer()
-                task.wait(3)
+                task.wait(2)
             end
             
         end
@@ -276,4 +286,4 @@ local GC = getconnections or get_signal_cons
 			VirtualUser:ClickButton2(Vector2.new())
 		end)
 	end
-print("Infinite yield's Anti afk")
+--Infinite yield's Anti afk
