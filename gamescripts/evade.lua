@@ -327,7 +327,7 @@ task.spawn(function()
             localplayer.PlayerScripts.CameraShake.Value = CFrame.new(0,0,0) * CFrame.new(0,0,0)
         end
         if Settings.moneyfarm then
-            TypeLabelC5:Set('Money Farm (Updating the end of the round)')
+            TypeLabelC5:Set('Money Farm')
             DurationLabelC5:Set('Duration:'..convertToHMS(Settings.stats.TokenFarm.duration))
             EarnedLabelC5:Set('Earned:'.. formatNumber(Settings.stats.TokenFarm.earned))
             TicketsLabelC5:Set('Total Tokens: '..formatNumber(localplayer:GetAttribute('Tokens')))
